@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kay's Repeat Order Dashboard — Summary</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#FAFAF8;--bg2:#F2F1ED;--bg3:#ECEAE4;
+  --tx:#1A1A2E;--tx2:#5A5A6E;--tx3:#8E8E9A;
+  --bdr:#E0DED8;
+  --red:#D93025;--green:#1A7F4B;--blue:#2B6CB0;--gold:#B8860B;
+  --accent:#1A1A2E;
+  --font:'DM Sans',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --radius:10px;--radius-lg:14px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#18181B;--bg2:#222226;--bg3:#2A2A2E;
+    --tx:#E8E6DF;--tx2:#A0A0AA;--tx3:#6E6E7A;
+    --bdr:#333338;
+    --red:#F87171;--green:#4ADE80;--blue:#60A5FA;--gold:#D4A017;
+    --accent:#E8E6DF;
+  }
+}
+body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.5;padding:0}
+.wrap{max-width:880px;margin:0 auto;padding:40px 28px 60px}
+.header{margin-bottom:32px}
+.header .brand{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);font-weight:500;margin-bottom:4px}
+.header h1{font-size:22px;font-weight:600;color:var(--tx);letter-spacing:-0.3px;margin-bottom:4px}
+.header .meta{font-size:12px;color:var(--tx3)}
+.header .meta span{margin-right:12px}
+.divider{height:2px;background:linear-gradient(90deg,var(--red),var(--gold),transparent);margin-bottom:32px;border-radius:1px}
+.kpi-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.kpi-card{background:var(--bg2);border-radius:var(--radius-lg);padding:18px 20px;position:relative;border:0.5px solid var(--bdr)}
+.kpi-card .label{font-size:11px;color:var(--tx3);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.kpi-card .value{font-family:var(--mono);font-weight:500;line-height:1.1;margin-bottom:4px}
+.kpi-card .sub{font-size:11px;color:var(--tx3);line-height:1.4}
+.kpi-card .delta{font-size:11px;margin-top:4px;font-weight:500}
+.kpi-card.target .value{font-size:36px;color:var(--green)}
+.kpi-card.baseline .value{font-size:36px;color:var(--blue)}
+.kpi-card.latest .value{font-size:36px}
+.kpi-card .tag{position:absolute;top:12px;right:14px;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:500;letter-spacing:0.3px}
+.tag-goal{background:#E8F5E9;color:#1A7F4B}
+.tag-anchor{background:#E3F2FD;color:#1565C0}
+.tag-live{background:#FFF3E0;color:#E65100}
+@media(prefers-color-scheme:dark){
+  .tag-goal{background:#1A3A2A;color:#4ADE80}
+  .tag-anchor{background:#1A2A3A;color:#60A5FA}
+  .tag-live{background:#3A2A1A;color:#FBB040}
+}
+.sec-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:8px}
+.sec-card{background:var(--bg2);border-radius:var(--radius);padding:12px 14px;border:0.5px solid var(--bdr)}
+.sec-card .label{font-size:10px;color:var(--tx3);margin-bottom:4px}
+.sec-card .value{font-family:var(--mono);font-size:18px;font-weight:500}
+.sec-card .note{font-size:9px;color:var(--tx3);margin-top:2px}
+.wk-kpi-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.wk-kpi{background:var(--bg2);border-radius:var(--radius);padding:12px 14px;border:0.5px solid var(--bdr)}
+.wk-kpi .wk-label{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;font-weight:500}
+.wk-kpi .wk-value{font-family:var(--mono);font-size:22px;font-weight:500;line-height:1.1}
+.wk-kpi .wk-sub{font-size:10px;color:var(--tx3);margin-top:3px}
+.footnote{font-size:10px;color:var(--tx3);font-style:italic;margin-bottom:32px;padding:8px 14px;background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--bdr)}
+.section-title{font-size:15px;font-weight:600;margin-bottom:4px;letter-spacing:-0.2px}
+.section-sub{font-size:11px;color:var(--tx3);margin-bottom:16px}
+.chart-wrap{position:relative;height:280px;margin-bottom:10px}
+.legend{display:flex;flex-wrap:wrap;gap:18px;font-size:11px;color:var(--tx2);margin-bottom:32px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend .dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.legend .line{width:14px;height:0;border-top:2px dashed var(--red);flex-shrink:0}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border-radius:var(--radius);overflow:hidden;border:0.5px solid var(--bdr)}
+.tbl thead th{background:var(--bg3);color:var(--tx);padding:10px 12px;font-weight:600;text-align:center;font-size:11px;letter-spacing:0.3px;border-bottom:2px solid var(--bdr)}
+.tbl thead th:first-child{text-align:left}
+.tbl tbody td{padding:8px 12px;text-align:center;border-bottom:0.5px solid var(--bdr)}
+.tbl tbody td:first-child{text-align:left;font-weight:500}
+.tbl tbody tr:nth-child(odd){background:var(--bg2)}
+.tbl tbody tr:nth-child(even){background:var(--bg)}
+.tbl .rate{font-family:var(--mono);font-weight:500}
+.tbl .neg{color:var(--red)}
+.tbl .pos{color:var(--green)}
+.tbl .muted{color:var(--tx3)}
+.tbl .badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.badge-full{background:#E8F5E9;color:#1A7F4B}
+.badge-partial{background:#FFF8E1;color:#B8860B}
+@media(prefers-color-scheme:dark){
+  .badge-full{background:#1A3A2A;color:#4ADE80}
+  .badge-partial{background:#3A3020;color:#D4A017}
+}
+.tbl-note{font-size:10px;color:var(--tx3);font-style:italic;margin-top:8px;margin-bottom:32px}
+.gap-bar{margin:20px 0 32px;padding:16px 20px;background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--bdr)}
+.gap-bar .gap-label{font-size:11px;color:var(--tx3);margin-bottom:8px}
+.gap-track{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.gap-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.gap-markers{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--tx3)}
+@media print{body{background:#fff}.kpi-card,.sec-card,.footnote,.gap-bar{border:1px solid #ddd}}
+@media(max-width:640px){.kpi-strip{grid-template-columns:1fr}.sec-strip{grid-template-columns:repeat(2,1fr)}.wk-kpi-strip{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="brand">Kay's Steak & Lobster</div>
+    <h1>Repeat Order Dashboard</h1>
+    <div class="meta">
+      <span>Period: 1 Nov 2025 – 26 Apr 2026</span>
+      <span>Source: UMAI</span>
+      <span>Generated: 26 Apr 2026</span>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="kpi-strip">
+    <div class="kpi-card target">
+      <span class="tag tag-goal">GOAL</span>
+      <div class="label">Target</div>
+      <div class="value">10.0%</div>
+      <div class="sub">of customers return within 90 days</div>
+    </div>
+    <div class="kpi-card baseline">
+      <span class="tag tag-anchor">ANCHOR</span>
+      <div class="label">Baseline — Nov 2025</div>
+      <div class="value">7.0%</div>
+      <div class="sub">169 of 2,406 returned within 90 days</div>
+      <div class="delta" style="color:var(--tx3)">Gap to target: 3.0 ppt</div>
+    </div>
+    <div class="kpi-card latest">
+      <span class="tag tag-live">LATEST</span>
+      <div class="label">Latest — Jan 2026 <span style="font-size:9px;font-weight:400;color:var(--tx3)">(full 90 days measured)</span></div>
+      <div class="value" style="color:var(--green)">8.1%</div>
+      <div class="sub">206 of 2,537 returned within 90 days</div>
+      <div class="delta" style="color:var(--green)">▲ +1.1 ppt vs baseline</div>
+    </div>
+  </div>
+
+  <div class="gap-bar">
+    <div class="gap-label">Progress toward 10% target</div>
+    <div class="gap-track">
+      <div class="gap-fill" id="gapFill" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--red))"></div>
+    </div>
+    <div class="gap-markers">
+      <span>0%</span>
+      <span>Baseline 7.0%</span>
+      <span style="color:var(--red);font-weight:500">Latest 8.1%</span>
+      <span style="color:var(--green);font-weight:500">Target 10%</span>
+    </div>
+  </div>
+
+  <div class="sec-strip">
+    <div class="sec-card"><div class="label">Total bookings</div><div class="value">19,535</div></div>
+    <div class="sec-card"><div class="label">Finish visits</div><div class="value">14,640</div></div>
+    <div class="sec-card"><div class="label">Unique customers</div><div class="value">13,518</div></div>
+    <div class="sec-card"><div class="label">Overall repeat rate (all-time)</div><div class="value">6.0%</div><div class="note">805 of 13,518 — not the project target</div></div>
+  </div>
+  <div class="footnote">
+    Reconciliation: 13,518 = 12,713 one-time + 651 returned ≤90d + 154 returned >90d ✅ &nbsp;|&nbsp;
+    Same-day duplicates removed: 84 &nbsp;|&nbsp;
+    "Overall Repeat Rate" is NOT the project target.
+  </div>
+
+  <div class="section-title">90-day return rate by cohort</div>
+  <div class="section-sub">Bars show what % of each month's visitors returned within 90 days.</div>
+  <div class="chart-wrap"><canvas id="cohortChart"></canvas></div>
+  <div class="legend">
+    <span><span class="dot" style="background:#2B6CB0"></span>Full 90 days measured (final)</span>
+    <span><span class="dot" style="background:#B0C4D0"></span>Still within 90-day window (will rise)</span>
+    <span><span class="line"></span>10% target</span>
+  </div>
+
+  <div class="section-title">Week-over-week return rate trend</div>
+  <div class="section-sub">Weekly % of visitors who had visited Kay's before (Mon–Sun, last 12 weeks). Split into <span style="color:var(--blue);font-weight:500">within 90d of first visit</span> (retention) vs <span style="color:var(--gold);font-weight:500">lapsed reactivation</span> (&gt;90d since first visit).</div>
+  <div class="wk-kpi-strip">
+    <div class="wk-kpi"><div class="wk-label">Latest week</div><div class="wk-value">12.0%</div><div class="wk-sub"><span style="color:var(--blue)">5.2% within 90d</span> + <span style="color:var(--gold)">6.8% lapsed</span></div></div>
+    <div class="wk-kpi"><div class="wk-label">WoW change</div><div class="wk-value" style="color:var(--red)">▼ -2.6 pp</div><div class="wk-sub">20 Apr–26 Apr vs prior</div></div>
+    <div class="wk-kpi"><div class="wk-label">4-wk avg split</div><div class="wk-value" style="font-size:16px"><span style="color:var(--blue)">6.3%</span> + <span style="color:var(--gold)">6.6%</span></div><div class="wk-sub">49% retention / 51% reactivation</div></div>
+  </div>
+  <div class="chart-wrap" style="height:260px"><canvas id="weeklyChart"></canvas></div>
+  <div class="legend">
+    <span><span class="dot" style="background:#2B6CB0;border-radius:50%"></span>Within 90d of first visit (retention)</span>
+    <span><span class="dot" style="background:#B8860B;border-radius:50%"></span>Lapsed reactivation (&gt;90d)</span>
+    <span><span class="line" style="border-top-color:var(--red)"></span>Total return rate</span>
+    <span><span class="line"></span>Nov baseline (7.0%)</span>
+  </div>
+  <table class="tbl" style="margin-top:8px">
+    <thead><tr><th>Week</th><th>Unique customers</th><th>Within 90d / Lapsed</th><th>Total return rate</th><th>vs prior week</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>02 Mar–08 Mar</td>
+        <td>365</td>
+        <td><span style="color:var(--blue);font-weight:500">23</span> / <span style="color:var(--gold);font-weight:500">12</span></td>
+        <td class="rate">9.6%</td>
+        <td class="muted">—</td>
+      </tr>
+      <tr>
+        <td>09 Mar–15 Mar</td>
+        <td>441</td>
+        <td><span style="color:var(--blue);font-weight:500">36</span> / <span style="color:var(--gold);font-weight:500">15</span></td>
+        <td class="rate">11.6%</td>
+        <td class="pos">▲ +2.0 pp</td>
+      </tr>
+      <tr>
+        <td>16 Mar–22 Mar</td>
+        <td>213</td>
+        <td><span style="color:var(--blue);font-weight:500">22</span> / <span style="color:var(--gold);font-weight:500">10</span></td>
+        <td class="rate">15.0%</td>
+        <td class="pos">▲ +3.5 pp</td>
+      </tr>
+      <tr>
+        <td>23 Mar–29 Mar</td>
+        <td>517</td>
+        <td><span style="color:var(--blue);font-weight:500">40</span> / <span style="color:var(--gold);font-weight:500">25</span></td>
+        <td class="rate">12.6%</td>
+        <td class="neg">▼ -2.5 pp</td>
+      </tr>
+      <tr>
+        <td>30 Mar–05 Apr</td>
+        <td>652</td>
+        <td><span style="color:var(--blue);font-weight:500">50</span> / <span style="color:var(--gold);font-weight:500">33</span></td>
+        <td class="rate">12.7%</td>
+        <td class="pos">▲ +0.2 pp</td>
+      </tr>
+      <tr>
+        <td>06 Apr–12 Apr</td>
+        <td>636</td>
+        <td><span style="color:var(--blue);font-weight:500">32</span> / <span style="color:var(--gold);font-weight:500">47</span></td>
+        <td class="rate">12.4%</td>
+        <td class="neg">▼ -0.3 pp</td>
+      </tr>
+      <tr>
+        <td>13 Apr–19 Apr</td>
+        <td>736</td>
+        <td><span style="color:var(--blue);font-weight:500">55</span> / <span style="color:var(--gold);font-weight:500">52</span></td>
+        <td class="rate">14.5%</td>
+        <td class="pos">▲ +2.1 pp</td>
+      </tr>
+      <tr>
+        <td>20 Apr–26 Apr</td>
+        <td>794</td>
+        <td><span style="color:var(--blue);font-weight:500">41</span> / <span style="color:var(--gold);font-weight:500">54</span></td>
+        <td class="rate">12.0%</td>
+        <td class="neg">▼ -2.6 pp</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="tbl-note">
+    <strong>Within 90d</strong> = returner whose first visit was ≤90 days ago (still inside the project retention window — this is what drives the official 90-day cohort KPI).
+    <strong>Lapsed reactivation</strong> = returner whose first visit was &gt;90 days ago (customer we'd otherwise have lost).
+    Weekly rate is a short-term signal; 90-day cohort rate above is the official project KPI.
+  </div>
+
+  <div class="section-title">Cohort detail</div>
+  <div class="section-sub">Each row = all visitors in that month. "vs baseline" compares to Nov 2025 (7.0%).</div>
+  <table class="tbl">
+    <thead><tr><th>Cohort</th><th>Customers</th><th>Returned ≤90d</th><th>90-day rate</th><th>vs baseline</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Nov 2025 (baseline)</td>
+        <td>2,406</td>
+        <td>169</td>
+        <td class="rate">7.0%</td>
+        <td class="muted">— baseline</td>
+        <td><span class="badge badge-full">✅ Full 90 days</span></td>
+      </tr>
+      <tr>
+        <td>Dec 2025</td>
+        <td>2,766</td>
+        <td>161</td>
+        <td class="rate">5.8%</td>
+        <td class="neg">▼ -1.2 ppt</td>
+        <td><span class="badge badge-full">✅ Full 90 days</span></td>
+      </tr>
+      <tr>
+        <td>Jan 2026</td>
+        <td>2,537</td>
+        <td>206</td>
+        <td class="rate">8.1%</td>
+        <td class="pos">▲ +1.1 ppt</td>
+        <td><span class="badge badge-full">✅ Full 90 days</span></td>
+      </tr>
+      <tr>
+        <td>Feb 2026 (to 28th)</td>
+        <td>2,308</td>
+        <td>150</td>
+        <td class="rate">6.5%</td>
+        <td class="muted">⏳ partial</td>
+        <td><span class="badge badge-partial">⏳ 84d so far</span></td>
+      </tr>
+      <tr>
+        <td>Mar 2026</td>
+        <td>1,751</td>
+        <td>93</td>
+        <td class="rate">5.3%</td>
+        <td class="muted">⏳ partial</td>
+        <td><span class="badge badge-partial">⏳ 56d so far</span></td>
+      </tr>
+      <tr>
+        <td>Apr 2026</td>
+        <td>2,594</td>
+        <td>48</td>
+        <td class="rate">1.9%</td>
+        <td class="muted">⏳ partial</td>
+        <td><span class="badge badge-partial">⏳ 25d so far</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="tbl-note">
+    "Full 90 days measured" = enough time has passed to count all returns — rate is final.
+    "Still within 90-day window" = customers could still return — rate will keep rising.
+  </div>
+
+  <div class="section-title" style="margin-top:28px">Branch performance</div>
+  <div class="section-sub">Which branch converts first-timers into repeaters? Attributed by first visit branch.</div>
+  <table class="tbl">
+    <thead><tr><th>Branch (first visit)</th><th>First-visit customers</th><th>Became repeaters</th><th>Conversion rate</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Kay's Elmina</td>
+        <td>2,976</td>
+        <td>209</td>
+        <td class="rate" style="color:var(--green)">7.0%</td>
+      </tr>
+      <tr>
+        <td>Kay's Putra Heights</td>
+        <td>2,854</td>
+        <td>175</td>
+        <td class="rate">6.1%</td>
+      </tr>
+      <tr>
+        <td>Kay's Ampang</td>
+        <td>3,206</td>
+        <td>184</td>
+        <td class="rate">5.7%</td>
+      </tr>
+      <tr>
+        <td>Kay's Putrajaya</td>
+        <td>3,783</td>
+        <td>211</td>
+        <td class="rate">5.6%</td>
+      </tr>
+      <tr>
+        <td>Fiel Charcoal Grillhouse</td>
+        <td>699</td>
+        <td>26</td>
+        <td class="rate" style="color:var(--red)">3.7%</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="tbl-note">
+    First-visit attribution: each repeater counted once, assigned to the branch they visited first. Return visit may be at any branch. 141 of 805 repeaters (17.5%) crossed branches.
+  </div>
+
+  <div style="padding:16px 20px;background:var(--bg2);border-radius:var(--radius-lg);border:0.5px solid var(--bdr);font-size:12px;color:var(--tx2);line-height:1.6">
+    <div style="font-weight:600;color:var(--tx);margin-bottom:6px;font-size:13px">How to read this dashboard</div>
+    <strong>Target (10.0%)</strong> — the project goal from the repeat order audit. Every cohort should move toward this.<br>
+    <strong>Baseline (Nov 2025: 7.0%)</strong> — permanent anchor. First full cohort before any campaigns. Never changes.<br>
+    <strong>Latest (Jan 2026: 8.1%)</strong> — most recent month where full 90 days have passed. When positive, campaigns are working. When negative, we're below where we started.<br><br>
+    <span style="color:var(--tx3)">For deep-dive data (branch analysis, individual customer list, time-to-repeat), see the Excel workbook.</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+setTimeout(()=>{document.getElementById('gapFill').style.width='81%'},200);
+const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+const gc=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
+const tc=isDark?'#8E8E9A':'#6E6E7A';
+new Chart(document.getElementById('cohortChart'),{
+  type:'bar',
+  data:{labels:['Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026 (to 28th)', 'Mar 2026', 'Apr 2026'],datasets:[{data:[7.0, 5.8, 8.1, 6.5, 5.3, 1.9],backgroundColor:['#2B6CB0', '#2B6CB0', '#2B6CB0', '#B0C4D0', '#B0C4D0', '#B0C4D0'],borderRadius:6,barPercentage:0.6,categoryPercentage:0.8}]},
+  options:{responsive:true,maintainAspectRatio:false,animation:{duration:800,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{backgroundColor:isDark?'#333':'#1A1A2E',padding:10,cornerRadius:8,callbacks:{label:c=>c.parsed.y+'%'}}},scales:{y:{min:0,max:12,ticks:{callback:v=>v+'%',color:tc,font:{size:11}},grid:{color:gc}},x:{ticks:{color:tc,font:{size:11}},grid:{display:false}}}},
+  plugins:[{id:'targetLine',afterDraw(chart){const y=chart.scales.y.getPixelForValue(10);const ctx=chart.ctx;ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle=isDark?'#F87171':'#D93025';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(chart.chartArea.left,y);ctx.lineTo(chart.chartArea.right,y);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=isDark?'#F87171':'#D93025';ctx.font='500 11px "DM Sans"';ctx.textAlign='right';ctx.fillText('10% target',chart.chartArea.right,y-8);ctx.restore()}},{id:'barLabels',afterDatasetsDraw(chart){const ctx=chart.ctx;const meta=chart.getDatasetMeta(0);ctx.save();ctx.font='500 12px "JetBrains Mono"';ctx.textAlign='center';ctx.fillStyle=isDark?'#E8E6DF':'#1A1A2E';meta.data.forEach((bar,i)=>{ctx.fillText(chart.data.datasets[0].data[i]+'%',bar.x,bar.y-8)});ctx.restore()}}]
+});
+
+// Weekly return rate — stacked area (within-90d retention + lapsed reactivation) with total line overlay
+const wkRatesWithin=[8.4, 5.0, 8.5, 8.0, 6.3, 8.2, 10.3, 7.7, 7.7, 5.0, 7.5, 5.2];
+const wkRatesLapsed=[0.3, 1.1, 0.9, 2.8, 3.3, 3.4, 4.7, 4.8, 5.1, 7.4, 7.1, 6.8];
+const wkRatesTotal=[8.7, 6.1, 9.4, 10.8, 9.6, 11.6, 15.0, 12.6, 12.7, 12.4, 14.5, 12.0];
+const wkMax=Math.max(...wkRatesTotal, 7.0)+2;
+new Chart(document.getElementById('weeklyChart'),{
+  type:'line',
+  data:{labels:['08 Feb', '15 Feb', '22 Feb', '01 Mar', '08 Mar', '15 Mar', '22 Mar', '29 Mar', '05 Apr', '12 Apr', '19 Apr', '26 Apr'],datasets:[
+    {
+      label:'Within 90d',
+      data:wkRatesWithin,
+      borderColor:isDark?'#60A5FA':'#2B6CB0',
+      backgroundColor:isDark?'rgba(96,165,250,0.35)':'rgba(43,108,176,0.25)',
+      borderWidth:1.8,
+      tension:0.3,
+      fill:'origin',
+      pointRadius:2.5,
+      pointHoverRadius:5,
+      pointBackgroundColor:isDark?'#60A5FA':'#2B6CB0',
+      order:3
+    },
+    {
+      label:'Lapsed reactivation',
+      data:wkRatesTotal,
+      borderColor:isDark?'#D4A017':'#B8860B',
+      backgroundColor:isDark?'rgba(212,160,23,0.30)':'rgba(184,134,11,0.22)',
+      borderWidth:1.8,
+      tension:0.3,
+      fill:'-1',
+      pointRadius:0,
+      pointHoverRadius:0,
+      order:2
+    },
+    {
+      label:'Total return rate',
+      data:wkRatesTotal,
+      borderColor:isDark?'#F87171':'#D93025',
+      backgroundColor:'transparent',
+      borderWidth:2.2,
+      borderDash:[4,3],
+      tension:0.3,
+      fill:false,
+      pointRadius:3.5,
+      pointHoverRadius:6,
+      pointBackgroundColor:isDark?'#F87171':'#D93025',
+      pointBorderColor:isDark?'#18181B':'#FAFAF8',
+      pointBorderWidth:1.5,
+      order:1
+    }
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    animation:{duration:800,easing:'easeOutQuart'},
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:isDark?'#333':'#1A1A2E',padding:10,cornerRadius:8,
+        filter:(item)=>item.dataset.label!=='Lapsed reactivation'||true,
+        callbacks:{
+          label:function(c){
+            if(c.dataset.label==='Lapsed reactivation'){
+              return 'Lapsed reactivation: '+wkRatesLapsed[c.dataIndex]+'%';
+            }
+            return c.dataset.label+': '+c.parsed.y+'%';
+          }
+        }
+      }
+    },
+    scales:{
+      y:{min:0,max:Math.ceil(wkMax),ticks:{callback:v=>v+'%',color:tc,font:{size:11}},grid:{color:gc}},
+      x:{ticks:{color:tc,font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:12},grid:{display:false}}
+    }
+  },
+  plugins:[
+    {id:'baselineLine',afterDraw(chart){const y=chart.scales.y.getPixelForValue(7.0);const ctx=chart.ctx;ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle=isDark?'#60A5FA':'#2B6CB0';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(chart.chartArea.left,y);ctx.lineTo(chart.chartArea.right,y);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=isDark?'#60A5FA':'#2B6CB0';ctx.font='500 10px "DM Sans"';ctx.textAlign='right';ctx.fillText('Nov baseline 7.0%',chart.chartArea.right,y-6);ctx.restore()}},
+    {id:'wkTotalLabels',afterDatasetsDraw(chart){const ctx=chart.ctx;const meta=chart.getDatasetMeta(2);if(!meta)return;ctx.save();ctx.font='500 10px "JetBrains Mono"';ctx.textAlign='center';ctx.fillStyle=isDark?'#E8E6DF':'#1A1A2E';meta.data.forEach((pt,i)=>{ctx.fillText(chart.data.datasets[2].data[i]+'%',pt.x,pt.y-10)});ctx.restore()}}
+  ]
+});
+</script>
+</body>
+</html>
